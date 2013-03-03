@@ -1,0 +1,144 @@
+<project name="uli-xmldiff" default="dist">
+
+<loadproperties>
+  <file file="build.properties"/>
+</loadproperties>
+
+<condition property="EXT" value=".bat" else=".sh">
+  <os family="windows"/>
+</condition>
+
+<property name="classes" value="build/classes" />
+
+<path id="classpath.base">
+  <pathelement location="${classes}" />
+  <fileset dir="lib">
+    <include name="**/*.jar"/>
+  </fileset>
+</path>
+
+<path id="classpath.groovy">
+  <path refid="classpath.base" />
+  <pathelement location="bin/groovy/lib/*" />
+  <pathelement location="bin/groovy/embeddable/*" />
+</path>
+
+<target name="-prepare">
+  <exec executable="${basedir}/bin/prepare${EXT}" dir="${basedir}">
+  </exec>
+</target> <!-- -prepare -->
+
+<target name="compile" depends="-prepare, compile-java" />
+
+<target name="compile-java">
+  <mkdir dir="${classes}"/>
+  <javac srcdir="src/main/java" debug="true" destdir="${classes}" includeAntRuntime="false">
+    <classpath>
+      <path refid="classpath.base" />
+    </classpath>
+  </javac>
+</target>
+
+<target name="jar" depends="compile">
+ <jar destfile="lib/examples.jar" basedir="${classes}"/>
+</target>
+
+<target name="clean">
+  <delete dir="tmp" />
+  <delete>
+    <fileset dir="lib">
+      <exclude name="examples.jar"/>
+    </fileset>
+  </delete>
+  <delete dir="build" />
+  <delete dir="com" />
+  <delete dir="dist" />
+  <delete dir="report" />
+  <delete dir="bin/groovy" />
+  <delete dir="bin/wsdldiff" />
+  <delete>
+    <fileset dir="." defaultexcludes="no">
+      <include name="**/*~" />
+      <include name="**/*.class" />
+        <include name="**/uli-wsgen*.jar" />
+        <include name="**/httpcat*.jar" />
+      <include name="uli-wsgen*.sh" />
+      <include name="uli-wsgen*.bat" />
+    </fileset>
+  </delete>
+</target>
+
+<target name="all" depends="dist, jar"/>
+
+<target name="dist" depends="compile"/>
+<!--  <exec executable="${basedir}/bin/${GROOVY}" dir="groovy-scripts">
+    <env key="GROOVY_HOME" path="${basedir}/bin/groovy"/>
+    <arg value="UliGroovyWrapper"/>
+    <arg value="-c"/>
+    <arg value="-d"/>
+    <arg value="${basedir}/uli-wsgen-${buildTag}.jar"/>
+    <arg value="-m"/>
+    <arg value="uliWsGen"/>
+  </exec>
+  <copy overwrite="true" file="scripts/dist.sh" tofile="uli-wsgen-${buildTag}.sh"/>
+  <fixcrlf file="uli-wsgen-${buildTag}.sh" eol="unix" eof="remove"/>
+  <concat append="true" binary="true" destfile="uli-wsgen-${buildTag}.sh">
+    <fileset dir="." includes="uli-wsgen-${buildTag}.jar"/>
+  </concat>
+  <chmod file="uli-wsgen-${buildTag}.sh" perm="a+x"/>
+  <copy overwrite="true" file="scripts/dist.bat" tofile="uli-wsgen-${buildTag}.bat"/>
+  <fixcrlf file="uli-wsgen-${buildTag}.bat" eol="dos" eof="add"/>
+  <concat append="true" binary="true" destfile="uli-wsgen-${buildTag}.bat">
+    <fileset dir="." includes="uli-wsgen-${buildTag}.jar"/>
+  </concat>
+</target>
+-->
+
+<target name="lib" depends="groovy-lib">
+  <mkdir dir="lib" />
+</target>
+
+<target name="-check-unpack-groovy" unless="groovy.is.unpacked">
+    <available property="groovy.is.unpacked" file="bin/groovy/bin/groovy"/>
+</target>
+<target name="-unpack-groovy" depends="-check-unpack-groovy" unless="${groovy.is.unpacked}">
+  <exec executable="${basedir}/bin/prepare${EXT}">
+  </exec>
+</target>
+
+<target name="groovy-lib" depends="-unpack-groovy">
+  <copy todir="lib" flatten="true">
+    <fileset dir="bin/groovy/lib">
+      <include name="**/*.jar" />
+    </fileset>
+    <fileset dir="bin/groovy/embeddable">
+      <include name="**/*.jar" />
+      <exclude name="**/*-indy.jar" />
+    </fileset>
+  </copy>
+</target>
+
+<target name="xmldiff.jar" depends="compile">
+  <jar destfile="xmldiff.jar" basedir="build/classes" includes="**/XmlDiff.class">
+    <manifest>
+      <attribute name="Main-Class" value="org.uli.xmldiff.XmlDiff"/>
+    </manifest>
+    <zipgroupfileset dir="lib" includes="xmlunit*jar"/>
+  </jar>
+</target>
+
+<target name="xmldiff" depends="xmldiff.jar">
+  <copy overwrite="true" file="scripts/dist.sh" tofile="bin/xmldiff.sh"/>
+  <fixcrlf file="bin/xmldiff.sh" eol="unix" eof="remove"/>
+  <concat append="true" binary="true" destfile="bin/xmldiff.sh">
+    <fileset dir="." includes="xmldiff.jar"/>
+  </concat>
+  <chmod file="bin/xmldiff.sh" perm="a+x"/>
+  <copy overwrite="true" file="scripts/dist.bat" tofile="bin/xmldiff.bat"/>
+  <fixcrlf file="bin/xmldiff.bat" eol="dos" eof="add"/>
+  <concat append="true" binary="true" destfile="bin/xmldiff.bat">
+    <fileset dir="." includes="xmldiff.jar"/>
+  </concat>
+</target>
+
+</project>
