@@ -70,7 +70,7 @@
 
 <target name="all" depends="dist, jar"/>
 
-<target name="dist" depends="compile"/>
+<target name="dist" depends="compile, xmldiff"/>
 <!--  <exec executable="${basedir}/bin/${GROOVY}" dir="groovy-scripts">
     <env key="GROOVY_HOME" path="${basedir}/bin/groovy"/>
     <arg value="UliGroovyWrapper"/>
@@ -128,15 +128,15 @@
 </target>
 
 <target name="xmldiff" depends="xmldiff.jar">
-  <copy overwrite="true" file="scripts/dist.sh" tofile="bin/xmldiff.sh"/>
-  <fixcrlf file="bin/xmldiff.sh" eol="unix" eof="remove"/>
-  <concat append="true" binary="true" destfile="bin/xmldiff.sh">
+  <copy overwrite="true" file="scripts/dist.sh" tofile="bin/xmldiff-${buildTag}.sh"/>
+  <fixcrlf file="bin/xmldiff-${buildTag}.sh" eol="unix" eof="remove"/>
+  <concat append="true" binary="true" destfile="bin/xmldiff-${buildTag}.sh">
     <fileset dir="." includes="xmldiff.jar"/>
   </concat>
-  <chmod file="bin/xmldiff.sh" perm="a+x"/>
-  <copy overwrite="true" file="scripts/dist.bat" tofile="bin/xmldiff.bat"/>
-  <fixcrlf file="bin/xmldiff.bat" eol="dos" eof="add"/>
-  <concat append="true" binary="true" destfile="bin/xmldiff.bat">
+  <chmod file="bin/xmldiff-${buildTag}.sh" perm="a+x"/>
+  <copy overwrite="true" file="scripts/dist.bat" tofile="bin/xmldiff-${buildTag}.bat"/>
+  <fixcrlf file="bin/xmldiff-${buildTag}.bat" eol="dos" eof="add"/>
+  <concat append="true" binary="true" destfile="bin/xmldiff-${buildTag}.bat">
     <fileset dir="." includes="xmldiff.jar"/>
   </concat>
 </target>
